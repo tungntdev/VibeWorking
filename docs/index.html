@@ -13,198 +13,347 @@
   <style>
     :root {
       --bg: #0b0d1f;
-      --bg-2: #141834;
-      --card: rgba(255, 255, 255, 0.05);
+      --bg-2: #121631;
+      --card: rgba(255, 255, 255, 0.045);
       --line: rgba(255, 255, 255, 0.1);
       --text: #eef0ff;
       --muted: #a4abd1;
       --accent: #7c83ff;
       --accent-2: #b07cff;
+      --warm: #f59e0b;
       --ok: #34d399;
-      --radius: 18px;
+      --radius: 20px;
     }
-    @media (prefers-color-scheme: light) {
-      :root:not([data-theme="dark"]) { --bg: #f5f6ff; --bg-2: #e9ebff; --card: rgba(255, 255, 255, 0.7); --line: rgba(20, 25, 60, 0.12); --text: #141834; --muted: #545b80; }
-    }
-    :root[data-theme="light"] { --bg: #f5f6ff; --bg-2: #e9ebff; --card: rgba(255, 255, 255, 0.7); --line: rgba(20, 25, 60, 0.12); --text: #141834; --muted: #545b80; }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; overflow-x: hidden; }
+    img { display: block; max-width: 100%; height: auto; }
     a { color: var(--accent); }
-    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
-    header.nav { position: sticky; top: 0; z-index: 5; backdrop-filter: blur(12px); background: color-mix(in srgb, var(--bg) 80%, transparent); border-bottom: 1px solid var(--line); }
-    .nav .wrap { display: flex; align-items: center; gap: 14px; height: 60px; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+    .grad { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+    .grad .w { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+    .eyebrow { display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 12px; }
+    h1, h2, h3 { letter-spacing: -0.02em; line-height: 1.12; margin: 0; }
+    h2 { font-size: clamp(28px, 4vw, 44px); }
+    p { margin: 0; }
+
+    /* Thanh tiến trình đọc */
+    .progress { position: fixed; left: 0; top: 0; height: 3px; width: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--warm)); transform-origin: 0 50%; transform: scaleX(0); z-index: 20; }
+
+    /* Thanh điều hướng */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 10; backdrop-filter: blur(14px); background: rgba(11, 13, 31, .72); border-bottom: 1px solid var(--line); }
+    .nav .wrap { display: flex; align-items: center; gap: 14px; height: 62px; }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; color: var(--text); }
-    .brand img { width: 30px; height: 30px; border-radius: 8px; }
-    .nav nav { margin-left: auto; display: flex; gap: 18px; }
+    .brand img { width: 30px; height: 30px; border-radius: 9px; }
+    .nav nav { margin-left: auto; display: flex; gap: 22px; }
     .nav nav a { color: var(--muted); text-decoration: none; font-size: 14px; }
     .nav nav a:hover { color: var(--text); }
-    .hero { padding: 72px 0 40px; text-align: center; background: radial-gradient(900px 420px at 50% -10%, rgba(124, 131, 255, 0.35), transparent 70%); }
-    .badge { display: inline-block; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; background: var(--card); }
-    h1 { font-size: clamp(34px, 6vw, 60px); line-height: 1.08; margin: 18px 0 14px; letter-spacing: -0.02em; }
-    h1 span { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .lead { color: var(--muted); font-size: clamp(16px, 2vw, 19px); max-width: 680px; margin: 0 auto; }
-    .cta { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 30px; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 22px; border-radius: 14px; font-weight: 700; font-size: 16px; text-decoration: none; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 12px 34px rgba(124, 131, 255, 0.4); border: 0; cursor: pointer; }
-    .btn:hover { filter: brightness(1.08); }
-    .btn.ghost { background: var(--card); color: var(--text); box-shadow: none; border: 1px solid var(--line); font-weight: 600; font-size: 14px; padding: 10px 16px; }
+
+    /* Nút */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; border-radius: 14px; font-weight: 700; font-size: 16px; text-decoration: none; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 14px 40px rgba(124, 131, 255, .42); transition: transform .2s, filter .2s; }
+    .btn:hover { filter: brightness(1.08); transform: translateY(-2px); }
+    .btn.ghost { background: var(--card); color: var(--text); box-shadow: none; border: 1px solid var(--line); font-weight: 600; font-size: 14px; padding: 11px 16px; }
+    .btn.ghost:hover { background: rgba(255, 255, 255, .08); }
     .btn small { font-weight: 500; opacity: .85; font-size: 13px; }
+
+    /* Hero */
+    .hero { position: relative; padding: 150px 0 60px; text-align: center; overflow: hidden; }
+    .hero::before { content: ""; position: absolute; inset: -20% -10% auto; height: 760px; background: radial-gradient(closest-side, rgba(124, 131, 255, .38), transparent); pointer-events: none; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; background: var(--card); }
+    .badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+    .hero h1 { font-size: clamp(38px, 6.4vw, 72px); margin: 22px auto 18px; max-width: 900px; }
+    .hero h1 .w { display: inline-block; }
+    .lead { color: var(--muted); font-size: clamp(16px, 2vw, 20px); max-width: 680px; margin: 0 auto; }
+    .cta { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 34px; }
     .alt { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
     .meta { color: var(--muted); font-size: 13px; }
-    .shot { margin: 46px auto 0; max-width: 920px; border-radius: var(--radius); border: 1px solid var(--line); background: linear-gradient(160deg, var(--bg-2), var(--bg)); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); overflow: hidden; aspect-ratio: 16 / 10; display: grid; place-items: center; }
-    .shot-inner { text-align: center; color: var(--muted); padding: 24px; }
-    .shot-inner .room { font-size: 64px; }
-    section { padding: 64px 0; }
-    section h2 { font-size: clamp(24px, 3.5vw, 34px); margin: 0 0 10px; letter-spacing: -0.01em; }
-    section > .wrap > p.sub { color: var(--muted); margin: 0 0 30px; max-width: 680px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
-    .card .ic { font-size: 28px; margin-bottom: 8px; }
-    .card h3 { margin: 0 0 6px; font-size: 17px; }
-    .card p { margin: 0; color: var(--muted); font-size: 14.5px; }
-    .steps { counter-reset: s; display: grid; gap: 14px; }
-    .step { display: flex; gap: 16px; align-items: flex-start; }
-    .step b.n { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font-weight: 700; }
-    .step p { margin: 4px 0 0; color: var(--muted); }
-    .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
-    .platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-    .plat { position: relative; }
-    .plat.current { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124, 131, 255, 0.25); }
-    .plat .tag { position: absolute; top: 14px; right: 14px; font-size: 12px; color: var(--ok); }
-    .plat h3 { margin: 0 0 4px; }
-    .plat ul { margin: 10px 0 16px; padding-left: 18px; color: var(--muted); font-size: 14px; }
-    .plat .btn { width: 100%; }
-    details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+
+    /* Khung ảnh giả trình duyệt */
+    .frame { position: relative; border-radius: var(--radius); border: 1px solid var(--line); background: #0e1230; box-shadow: 0 40px 100px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .03) inset; overflow: hidden; }
+    .frame .bar { display: flex; align-items: center; gap: 7px; padding: 11px 14px; background: #161b3d; border-bottom: 1px solid var(--line); }
+    .frame .bar span { width: 11px; height: 11px; border-radius: 50%; background: #3a4170; }
+    .frame .bar span:nth-child(1) { background: #ff5f57; }
+    .frame .bar span:nth-child(2) { background: #febc2e; }
+    .frame .bar span:nth-child(3) { background: #28c840; }
+    .frame .bar em { margin-left: 10px; font-style: normal; font-size: 12px; color: var(--muted); }
+    .frame img { width: 100%; }
+    .hero-shot { position: relative; margin: 64px auto 0; max-width: 980px; will-change: transform; }
+    .hero-shot .glow { position: absolute; inset: auto 10% -40px; height: 60px; background: var(--accent); filter: blur(60px); opacity: .45; z-index: -1; }
+
+    /* Dải số liệu */
+    .strip { border-block: 1px solid var(--line); background: var(--card); }
+    .strip .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+    .strip .item { padding: 28px 12px; text-align: center; border-right: 1px solid var(--line); }
+    .strip .item:last-child { border-right: 0; }
+    .strip b { display: block; font-size: clamp(26px, 3.5vw, 36px); }
+    .strip span { color: var(--muted); font-size: 14px; }
+
+    /* Phần tính năng xen kẽ */
+    .feature { padding: 110px 0; }
+    .feature .wrap { display: grid; grid-template-columns: 1fr 1.25fr; gap: 64px; align-items: center; }
+    .feature.flip .wrap { grid-template-columns: 1.25fr 1fr; }
+    .feature.flip .text { order: 2; }
+    .feature p.body { color: var(--muted); margin-top: 16px; font-size: 17px; }
+    .points { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 12px; }
+    .points li { display: flex; gap: 12px; color: var(--muted); font-size: 15.5px; }
+    .points li::before { content: "✓"; flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(52, 211, 153, .15); color: var(--ok); font-size: 13px; font-weight: 700; margin-top: 1px; }
+    .feature .frame { transform-origin: center; }
+
+    /* Dải ảnh ghim cuộn ngang */
+    .gal { height: 100vh; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; border-block: 1px solid var(--line); background: linear-gradient(180deg, var(--bg), var(--bg-2), var(--bg)); }
+    .gal-head { text-align: center; padding: 0 20px 36px; }
+    .gal-track { display: flex; gap: 28px; padding: 0 max(20px, calc((100vw - 1120px) / 2)); width: max-content; will-change: transform; }
+    .gal-card { margin: 0; width: min(760px, 82vw); flex: none; }
+    .gal-card .cap { margin-top: 16px; color: var(--muted); font-size: 15px; }
+    .gal-card .cap b { color: var(--text); display: block; font-size: 17px; margin-bottom: 2px; }
+
+    /* Các bước */
+    .steps-sec { padding: 110px 0; }
+    .steps-sec .head { text-align: center; margin-bottom: 56px; }
+    .timeline { position: relative; max-width: 760px; margin: 0 auto; padding-left: 64px; }
+    .timeline::before { content: ""; position: absolute; left: 22px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+    .timeline .fill { position: absolute; left: 22px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent-2)); transform-origin: top; transform: scaleY(0); }
+    .step { position: relative; padding-bottom: 52px; }
+    .step:last-child { padding-bottom: 0; }
+    .step .n { position: absolute; left: -64px; top: 0; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); border: 2px solid var(--accent); color: var(--text); font-weight: 800; font-size: 17px; box-shadow: 0 0 0 6px var(--bg); }
+    .step h3 { font-size: 22px; margin-bottom: 8px; }
+    .step p { color: var(--muted); font-size: 16px; }
+
+    /* Tải về */
+    .download { padding: 110px 0; background: radial-gradient(800px 380px at 50% 0%, rgba(176, 124, 255, .18), transparent 70%); }
+    .download .head { text-align: center; margin-bottom: 44px; }
+    .download .head p { color: var(--muted); margin-top: 12px; }
+    .platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .plat { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; display: flex; flex-direction: column; gap: 10px; transition: border-color .25s, box-shadow .25s; }
+    .plat.current { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124, 131, 255, .22); }
+    .plat .tag { position: absolute; top: 18px; right: 18px; font-size: 12px; color: var(--ok); }
+    .plat h3 { font-size: 22px; }
+    .plat .meta { margin-bottom: 4px; }
+    .plat ul { margin: 6px 0 12px; padding-left: 18px; color: var(--muted); font-size: 14.5px; }
+    .plat .btn { margin-top: auto; }
+    .plat details { margin-top: 6px; }
     details summary { cursor: pointer; font-weight: 600; }
-    details p { color: var(--muted); margin: 8px 0 0; }
+    details p { color: var(--muted); margin-top: 8px; font-size: 14.5px; }
     code { background: var(--card); border: 1px solid var(--line); padding: 2px 6px; border-radius: 6px; font-size: 13px; word-break: break-all; }
-    pre { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; overflow-x: auto; font-size: 13px; }
-    footer { padding: 40px 0 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+    pre { background: rgba(0, 0, 0, .3); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; overflow-x: auto; font-size: 13px; margin: 10px 0 0; }
+
+    /* Hỏi đáp */
+    .faq { padding: 110px 0; }
+    .faq .head { margin-bottom: 30px; }
+    .faq details { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq details summary { font-size: 17px; }
+    .faq details p { font-size: 15.5px; }
+
+    footer { padding: 36px 0 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
     footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 24px; justify-content: space-between; }
+
+    /* Phản hồi theo màn hình */
+    @media (max-width: 900px) {
+      .feature .wrap, .feature.flip .wrap { grid-template-columns: 1fr; gap: 36px; }
+      .feature.flip .text { order: 0; }
+      .feature { padding: 80px 0; }
+      .strip .wrap { grid-template-columns: repeat(2, 1fr); }
+      .strip .item:nth-child(2) { border-right: 0; }
+      .strip .item:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+    }
     @media (max-width: 640px) {
       .nav nav a:not(.keep) { display: none; }
-      .hero { padding-top: 48px; }
+      .hero { padding-top: 120px; }
+      .timeline { padding-left: 56px; }
+      .timeline::before, .timeline .fill { left: 18px; }
+      .step .n { left: -56px; width: 40px; height: 40px; font-size: 15px; }
+      .gal { height: auto; padding: 80px 0; }
+      .gal-track { flex-direction: column; width: auto; padding: 0 20px; }
+      .gal-card { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; animation: none !important; }
     }
   </style>
 </head>
 <body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
   <header class="nav">
     <div class="wrap">
       <a class="brand" href="#top"><img src="icon.png" alt="" /> AI Office 3D</a>
       <nav>
         <a href="#tinh-nang">Tính năng</a>
         <a href="#cach-dung">Cách dùng</a>
-        <a href="#tai-ve">Tải về</a>
+        <a href="#tai-ve" class="keep">Tải về</a>
         <a href="#hoi-dap">Hỏi đáp</a>
       </nav>
     </div>
   </header>
 
   <main id="top">
-    <div class="hero">
+    <!-- Hero -->
+    <section class="hero">
       <div class="wrap">
-        <span class="badge">Miễn phí · Mã nguồn mở · macOS & Windows</span>
-        <h1>Văn phòng 3D, nơi <span>nhân viên AI</span> làm việc cho bạn</h1>
-        <p class="lead">Giao công việc bằng lời, theo dõi từng nhân viên ngồi ở bàn làm việc của mình, nhận báo cáo khi xong. Kết nối Claude, Codex, Gemini, Ollama hoặc bất kỳ AI nào bạn đang dùng.</p>
+        <span class="badge"><i></i> Miễn phí · macOS & Windows · Tự cập nhật</span>
+        <h1 id="hero-title">Văn phòng 3D, nơi <span class="grad">nhân viên AI</span> làm việc cho bạn</h1>
+        <p class="lead">Giao công việc bằng lời, xem từng nhân viên ngồi ở bàn của mình, nhận báo cáo khi xong. Kết nối Claude, Codex, Gemini, Ollama hoặc AI bạn đang dùng.</p>
         <div class="cta">
           <a class="btn" id="dl-primary" href="https://github.com/tungntdev/VibeWorking/releases/latest"><span id="dl-label">Tải về</span> <small id="dl-sub"></small></a>
           <div class="alt">
             <a class="btn ghost" href="https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-macos-universal.dmg">🍎 macOS (Apple & Intel)</a>
             <a class="btn ghost" href="https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-windows-x64-setup.exe">🪟 Windows 10/11</a>
           </div>
-          <span class="meta">Không cần tài khoản · Không thu phí · Tự động cập nhật bản mới</span>
+          <span class="meta">Không cần tài khoản · Không thu phí</span>
         </div>
-        <div class="shot" role="img" aria-label="Minh hoạ văn phòng 3D">
-          <div class="shot-inner"><div class="room">🏢</div><p>Văn phòng 3D với các nhân viên AI tại bàn làm việc, bảng tên và trạng thái trực tiếp</p></div>
-        </div>
-      </div>
-    </div>
-
-    <section id="tinh-nang">
-      <div class="wrap">
-        <h2>Mọi thứ trong một văn phòng</h2>
-        <p class="sub">Không chỉ là giao diện đẹp: mỗi nhân viên có vai trò, mức độ kỹ năng và AI riêng, làm việc trong thư mục bạn chọn.</p>
-        <div class="grid">
-          <div class="card"><div class="ic">🧑‍💼</div><h3>Nhân viên AI theo vai trò</h3><p>Ứng viên được AI đề xuất từ mô tả công việc. Thêm, sửa, xoá nhân viên và chọn AI, mô hình, mức suy luận cho từng người.</p></div>
-          <div class="card"><div class="ic">🔀</div><h3>Nhiều AI trong một việc</h3><p>Gemini tìm thông tin, Claude viết tổng hợp, GPT kiểm tra lại. Mỗi bước chạy trên AI phù hợp nhất.</p></div>
-          <div class="card"><div class="ic">📂</div><h3>Làm việc với tệp của bạn</h3><p>Kéo thả tệp hoặc cả thư mục vào công việc. Nhân viên đọc, sửa và tạo tệp ngay trong thư mục đó.</p></div>
-          <div class="card"><div class="ic">📄</div><h3>Xuất Word, PDF, Excel</h3><p>Báo cáo được xuất theo đúng mẫu bạn đã lưu: Word, PDF, Excel, CSV hoặc HTML.</p></div>
-          <div class="card"><div class="ic">🧠</div><h3>Nhớ những gì bạn đã dặn</h3><p>Khi bạn yêu cầu chỉnh sửa lặp lại, nhân viên ghi nhớ và áp dụng cho các việc sau.</p></div>
-          <div class="card"><div class="ic">💬</div><h3>Hỏi lại, nhắn tiếp</h3><p>Nhân viên đứng dậy hỏi bạn khi thiếu thông tin. Việc đã xong vẫn có thể nhắn tiếp để chỉnh sửa.</p></div>
-          <div class="card"><div class="ic">🔒</div><h3>Dữ liệu ở trên máy bạn</h3><p>Cơ sở dữ liệu và thư mục làm việc lưu trên máy bạn. Đăng nhập bằng mật khẩu, Touch ID trên Mac.</p></div>
-          <div class="card"><div class="ic">⬆️</div><h3>Tự cập nhật</h3><p>Ứng dụng kiểm tra bản mới khi khởi động và cho bạn cài đặt chỉ với một cú bấm.</p></div>
+        <div class="hero-shot" id="hero-shot">
+          <div class="glow" aria-hidden="true"></div>
+          <div class="frame">
+            <div class="bar"><span></span><span></span><span></span><em>AI Office 3D — Văn phòng AI</em></div>
+            <img src="img/office.jpg" alt="Văn phòng 3D với các nhân viên AI ngồi tại bàn, mỗi bàn có bảng tên" width="1512" height="793" />
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="cach-dung">
+    <!-- Dải số liệu -->
+    <section class="strip">
       <div class="wrap">
-        <h2>Bắt đầu trong 3 bước</h2>
-        <p class="sub">Lần đầu mở ứng dụng, một trợ lý thiết lập sẽ hướng dẫn bạn.</p>
-        <div class="steps">
-          <div class="step"><b class="n">1</b><div><h3 style="margin:0">Kết nối AI</h3><p>Ứng dụng quét máy và cài các công cụ AI còn thiếu (Claude Code, Codex, Gemini CLI…). Hoặc dán khoá API của bạn.</p></div></div>
-          <div class="step"><b class="n">2</b><div><h3 style="margin:0">Mô tả công việc</h3><p>Viết văn phòng của bạn làm gì. AI đề xuất các nhân viên phù hợp, bạn chỉnh lại nếu muốn.</p></div></div>
-          <div class="step"><b class="n">3</b><div><h3 style="margin:0">Giao nhiệm vụ</h3><p>Nêu yêu cầu, đính kèm tệp nếu có. Xem nhân viên làm việc và nhận báo cáo khi xong.</p></div></div>
+        <div class="item"><b>20</b><span>vai trò nhân viên mẫu</span></div>
+        <div class="item"><b>5</b><span>phong cách văn phòng</span></div>
+        <div class="item"><b>8</b><span>kết nối AI sẵn có</span></div>
+        <div class="item"><b>0 ₫</b><span>chi phí sử dụng ứng dụng</span></div>
+      </div>
+    </section>
+
+    <!-- Tính năng 1 -->
+    <section class="feature" id="tinh-nang">
+      <div class="wrap">
+        <div class="text reveal">
+          <span class="eyebrow">Văn phòng sống động</span>
+          <h2>Mỗi nhân viên có bàn, có tên, có việc đang làm</h2>
+          <p class="body">Nhìn là biết ai đang rảnh, ai đang làm và ai cần bạn trả lời. Bấm vào một người để xem họ đang làm gì.</p>
+          <ul class="points">
+            <li>Bảng tên gắn trên bàn, trạng thái hiện ngay trên đầu nhân viên</li>
+            <li>Nhân viên đứng dậy hỏi bạn khi thiếu thông tin</li>
+            <li>Chọn phong cách văn phòng: hiện đại, gỗ ấm, công nghệ, startup, hành chính</li>
+          </ul>
+        </div>
+        <div class="reveal-img">
+          <div class="frame"><div class="bar"><span></span><span></span><span></span><em>Văn phòng</em></div>
+            <img src="img/office.jpg" alt="Văn phòng 3D với các bàn làm việc của nhân viên AI" loading="lazy" width="1512" height="793" /></div>
         </div>
       </div>
     </section>
 
-    <section id="tai-ve">
+    <!-- Tính năng 2 -->
+    <section class="feature flip">
       <div class="wrap">
-        <h2>Tải về miễn phí</h2>
-        <p class="sub">Chọn đúng hệ điều hành của bạn. Trang này tự nhận diện máy bạn đang dùng.</p>
+        <div class="text reveal">
+          <span class="eyebrow">Giao việc & theo dõi</span>
+          <h2>Giao một việc, xem từng bước được thực hiện</h2>
+          <p class="body">Đặt tên nhiệm vụ, mô tả yêu cầu, đính kèm tệp hoặc thư mục. Mỗi nhân viên làm phần của mình và bạn thấy tiến độ từng người.</p>
+          <ul class="points">
+            <li>Điều phối viên tự phân công việc cho đúng người</li>
+            <li>Nhật ký tiến trình và kết quả của từng bước</li>
+            <li>Nhắn tiếp để chỉnh sửa khi việc đã xong</li>
+          </ul>
+        </div>
+        <div class="reveal-img">
+          <div class="frame"><div class="bar"><span></span><span></span><span></span><em>Nhiệm vụ</em></div>
+            <img src="img/nhiem-vu.jpg" alt="Chi tiết nhiệm vụ với phân công cho từng nhân viên và trạng thái xong" loading="lazy" width="1512" height="793" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dải ảnh ghim cuộn ngang -->
+    <section class="gal" id="gal">
+      <div class="gal-head reveal">
+        <span class="eyebrow">Xem trong ứng dụng</span>
+        <h2>Từ văn phòng đến báo cáo, trong một nơi</h2>
+      </div>
+      <div class="gal-track" id="gal-track">
+        <figure class="gal-card">
+          <div class="frame"><div class="bar"><span></span><span></span><span></span><em>Nhân sự</em></div>
+            <img src="img/nhan-su-bao-cao.jpg" alt="Danh sách nhân sự AI và thông báo báo cáo đã xong" loading="lazy" width="1512" height="793" /></div>
+          <figcaption class="cap"><b>Báo cáo tự trình bày</b>Khi xong việc, người trình báo cáo đứng lên và thông báo ngay trong văn phòng.</figcaption>
+        </figure>
+        <figure class="gal-card">
+          <div class="frame"><div class="bar"><span></span><span></span><span></span><em>Kết nối AI</em></div>
+            <img src="img/ket-noi-ai.jpg" alt="Danh sách kết nối AI: Claude Code, Codex, Gemini và API" loading="lazy" width="1512" height="793" /></div>
+          <figcaption class="cap"><b>Kết nối AI bạn đang dùng</b>Claude Code, Codex, Gemini CLI, Ollama hoặc khoá API. Ứng dụng có thể cài CLI còn thiếu.</figcaption>
+        </figure>
+        <figure class="gal-card">
+          <div class="frame"><div class="bar"><span></span><span></span><span></span><em>Khởi tạo</em></div>
+            <img src="img/khoi-tao.jpg" alt="Màn hình khởi tạo văn phòng với các phong cách để chọn" loading="lazy" width="1512" height="793" /></div>
+          <figcaption class="cap"><b>Khởi tạo chỉ một lần</b>Tạo tài khoản quản lý và chọn phong cách văn phòng. Đổi lại bất cứ lúc nào trong Cài đặt.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Các bước -->
+    <section class="steps-sec" id="cach-dung">
+      <div class="wrap">
+        <div class="head reveal">
+          <span class="eyebrow">Cách dùng</span>
+          <h2>Bắt đầu trong 3 bước</h2>
+        </div>
+        <div class="timeline" id="timeline">
+          <div class="fill" id="tl-fill"></div>
+          <div class="step reveal"><b class="n">1</b><h3>Kết nối AI</h3><p>Ứng dụng quét máy và cài các công cụ AI còn thiếu. Hoặc dán khoá API của bạn. Trợ lý thiết lập sẽ hướng dẫn từng bước.</p></div>
+          <div class="step reveal"><b class="n">2</b><h3>Mô tả công việc</h3><p>Viết văn phòng của bạn làm gì. AI đề xuất các nhân viên phù hợp, bạn chỉnh lại nếu muốn.</p></div>
+          <div class="step reveal"><b class="n">3</b><h3>Giao nhiệm vụ</h3><p>Nêu yêu cầu, đính kèm tệp nếu có. Xem nhân viên làm việc và nhận báo cáo khi xong.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tải về -->
+    <section class="download" id="tai-ve">
+      <div class="wrap">
+        <div class="head reveal">
+          <span class="eyebrow">Tải về miễn phí</span>
+          <h2>Chọn đúng hệ điều hành của bạn</h2>
+          <p>Trang này tự nhận diện máy bạn đang dùng.</p>
+        </div>
         <div class="platforms">
-          <div class="card plat" id="plat-mac">
+          <div class="plat reveal" id="plat-mac">
             <span class="tag" hidden>● Máy của bạn</span>
             <h3>🍎 macOS</h3>
-            <p class="meta" style="margin:0">Mac chip Apple (M1–M4) và Mac Intel · macOS 11 trở lên</p>
-            <ul>
-              <li>Tệp: <code>AI-Office-3D-macos-universal.dmg</code></li>
-              <li>Mở tệp, kéo vào Applications</li>
-            </ul>
+            <p class="meta">Mac chip Apple (M1–M4) và Mac Intel · macOS 11 trở lên</p>
+            <ul><li>Tệp: <code>AI-Office-3D-macos-universal.dmg</code></li><li>Mở tệp, kéo vào Applications</li></ul>
             <a class="btn" href="https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-macos-universal.dmg">Tải cho macOS</a>
-            <details style="margin-top:14px">
+            <details>
               <summary>macOS chặn khi mở lần đầu?</summary>
-              <p>Ứng dụng chưa qua Apple công chứng nên macOS có thể báo "không mở được". Vào <b>Cài đặt hệ thống → Quyền riêng tư & Bảo mật</b>, kéo xuống và bấm <b>Vẫn mở</b>. Hoặc chạy lệnh sau trong Terminal:</p>
+              <p>Vào <b>Cài đặt hệ thống → Quyền riêng tư & Bảo mật</b>, kéo xuống và bấm <b>Vẫn mở</b>. Hoặc chạy lệnh sau trong Terminal:</p>
               <pre>xattr -dr com.apple.quarantine "/Applications/AI Office 3D.app"</pre>
             </details>
           </div>
-          <div class="card plat" id="plat-win">
+          <div class="plat reveal" id="plat-win">
             <span class="tag" hidden>● Máy của bạn</span>
             <h3>🪟 Windows</h3>
-            <p class="meta" style="margin:0">Windows 10 (bản cập nhật mới) và Windows 11, 64-bit</p>
-            <ul>
-              <li>Tệp: <code>AI-Office-3D-windows-x64-setup.exe</code></li>
-              <li>Chạy tệp và làm theo hướng dẫn</li>
-            </ul>
+            <p class="meta">Windows 10 (bản cập nhật mới) và Windows 11, 64-bit</p>
+            <ul><li>Tệp: <code>AI-Office-3D-windows-x64-setup.exe</code></li><li>Chạy tệp và làm theo hướng dẫn</li></ul>
             <a class="btn" href="https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-windows-x64-setup.exe">Tải cho Windows</a>
-            <details style="margin-top:14px">
+            <details>
               <summary>SmartScreen báo "Windows đã bảo vệ máy tính"?</summary>
               <p>Bấm <b>Thông tin thêm</b> rồi <b>Vẫn chạy</b>. Đây là cảnh báo vì ứng dụng chưa có chứng chỉ ký số trả phí.</p>
             </details>
           </div>
-          <div class="card plat">
-            <h3>📦 Bản khác & mã nguồn</h3>
-            <p class="meta" style="margin:0">Xem mọi phiên bản, ghi chú cập nhật và mã nguồn trên GitHub.</p>
-            <ul>
-              <li>Mọi bản phát hành và tệp SHA-256</li>
-              <li>Hướng dẫn tự build từ mã nguồn</li>
-            </ul>
+          <div class="plat reveal">
+            <h3>📦 Mọi phiên bản</h3>
+            <p class="meta">Xem ghi chú cập nhật, tệp kiểm tra SHA-256 và mã nguồn trên GitHub.</p>
+            <ul><li>Mọi bản phát hành</li><li>Hướng dẫn tự build từ mã nguồn</li></ul>
             <a class="btn ghost" href="https://github.com/tungntdev/VibeWorking/releases">Xem tất cả phiên bản</a>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="hoi-dap">
+    <!-- Hỏi đáp -->
+    <section class="faq" id="hoi-dap">
       <div class="wrap">
-        <h2>Hỏi đáp</h2>
-        <p class="sub">Một vài điều thường được hỏi.</p>
-        <details><summary>Ứng dụng có thật sự miễn phí không?</summary><p>Có. Ứng dụng không thu phí, không quảng cáo và không cần tài khoản. Bạn chỉ trả tiền cho các dịch vụ AI bạn dùng (nếu có), theo giá của nhà cung cấp.</p></details>
-        <details><summary>Tôi cần có AI nào?</summary><p>Ít nhất một AI: một công cụ dòng lệnh đã đăng nhập (Claude Code, Codex, Gemini CLI…) hoặc khoá API của nhà cung cấp, hoặc một mô hình chạy trên máy như Ollama.</p></details>
-        <details><summary>Dữ liệu của tôi đi đâu?</summary><p>Cơ sở dữ liệu và thư mục làm việc nằm trên máy bạn. Nội dung công việc được gửi tới AI bạn đã kết nối, theo cách bạn cấu hình.</p></details>
-        <details><summary>Ứng dụng tự cập nhật thế nào?</summary><p>Khi mở, ứng dụng kiểm tra bản mới trên GitHub. Nếu có, bạn xem ghi chú và bấm cài đặt. Bản cập nhật được ký số và kiểm tra trước khi cài. Có thể bấm <b>Kiểm tra cập nhật</b> trong Cài đặt bất cứ lúc nào.</p></details>
-        <details><summary>Chạy trên Linux được không?</summary><p>Hiện chưa có bản Linux chính thức.</p></details>
+        <div class="head reveal"><span class="eyebrow">Hỏi đáp</span><h2>Điều bạn hay thắc mắc</h2></div>
+        <details class="reveal"><summary>Ứng dụng có thật sự miễn phí không?</summary><p>Có. Ứng dụng không thu phí, không quảng cáo và không cần tài khoản. Bạn chỉ trả tiền cho các dịch vụ AI bạn dùng (nếu có), theo giá của nhà cung cấp.</p></details>
+        <details class="reveal"><summary>Tôi cần có AI nào?</summary><p>Ít nhất một AI: một công cụ dòng lệnh đã đăng nhập (Claude Code, Codex, Gemini CLI…) hoặc khoá API của nhà cung cấp, hoặc một mô hình chạy trên máy như Ollama.</p></details>
+        <details class="reveal"><summary>Dữ liệu của tôi đi đâu?</summary><p>Cơ sở dữ liệu và thư mục làm việc nằm trên máy bạn. Nội dung công việc được gửi tới AI bạn đã kết nối, theo cách bạn cấu hình.</p></details>
+        <details class="reveal"><summary>Ứng dụng tự cập nhật thế nào?</summary><p>Khi mở, ứng dụng kiểm tra bản mới trên GitHub. Nếu có, bạn xem ghi chú và bấm cài đặt. Bản cập nhật được ký số và kiểm tra trước khi cài. Có thể bấm <b>Kiểm tra cập nhật</b> trong Cài đặt bất cứ lúc nào.</p></details>
+        <details class="reveal"><summary>Chạy trên Linux được không?</summary><p>Hiện chưa có bản Linux chính thức.</p></details>
       </div>
     </section>
   </main>
@@ -234,6 +383,89 @@
       } else {
         label.textContent = 'Xem các phiên bản'; sub.textContent = '(macOS, Windows)';
       }
+    })();
+  </script>
+
+  <!-- GSAP + ScrollTrigger (cdnjs, phiên bản cố định) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+    (function () {
+      // Không có GSAP (mạng chậm, bị chặn) hoặc người dùng tắt hiệu ứng: nội dung vẫn hiển thị đầy đủ.
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!window.gsap || !window.ScrollTrigger || reduce) return;
+      gsap.registerPlugin(ScrollTrigger);
+
+      // 1. Thanh tiến trình đọc theo cuộn trang
+      gsap.to('#progress', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.3 } });
+
+      // 2. Tiêu đề hero: hiện từng từ
+      // Chỉ tách chữ trong các nút văn bản, giữ nguyên thẻ <span class="grad">.
+      (function splitWords(el) {
+        Array.prototype.slice.call(el.childNodes).forEach(function (n) {
+          if (n.nodeType === 3) {
+            var frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach(function (p) {
+              if (!p) return;
+              if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+              var s = document.createElement('span'); s.className = 'w'; s.textContent = p; frag.appendChild(s);
+            });
+            n.replaceWith(frag);
+          } else if (n.nodeType === 1) {
+            splitWords(n);
+          }
+        });
+      })(document.getElementById('hero-title'));
+      gsap.from('#hero-title .w', { yPercent: 110, opacity: 0, duration: 0.9, ease: 'power4.out', stagger: 0.06, delay: 0.1 });
+      gsap.from('.hero .lead, .hero .cta, .hero .badge', { opacity: 0, y: 24, duration: 0.9, ease: 'power3.out', stagger: 0.12, delay: 0.5 });
+
+      // 3. Ảnh hero: nghiêng 3D rồi phẳng dần khi cuộn, trôi nhẹ theo chiều dọc
+      gsap.fromTo('#hero-shot', { rotateX: 18, scale: 0.92, opacity: 0.4 }, {
+        rotateX: 0, scale: 1, opacity: 1, ease: 'none',
+        scrollTrigger: { trigger: '#hero-shot', start: 'top 95%', end: 'top 35%', scrub: true }
+      });
+      gsap.set('#hero-shot', { transformPerspective: 1400 });
+
+      // 4. Các khối nội dung hiện khi cuộn tới
+      gsap.utils.toArray('.reveal').forEach(function (el) {
+        gsap.from(el, {
+          opacity: 0, y: 40, duration: 0.9, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
+        });
+      });
+
+      // 5. Ảnh trong phần tính năng: phóng từ nhỏ lên, lệch nhẹ theo cuộn
+      gsap.utils.toArray('.reveal-img .frame').forEach(function (f) {
+        gsap.fromTo(f, { scale: 0.86, rotateX: 10, opacity: 0 }, {
+          scale: 1, rotateX: 0, opacity: 1, ease: 'power3.out',
+          scrollTrigger: { trigger: f, start: 'top 88%', end: 'top 45%', scrub: 0.6 }
+        });
+        gsap.set(f, { transformPerspective: 1200 });
+      });
+
+      // 6. Dải ảnh ghim cuộn ngang: khi cuộn dọc, dải trôi ngang theo
+      // Chỉ ghim cuộn ngang trên màn hình rộng; trên điện thoại các ảnh xếp dọc.
+      gsap.matchMedia().add('(min-width: 641px)', function () {
+        var track = document.getElementById('gal-track');
+        gsap.to(track, {
+          x: function () { return -(track.scrollWidth - window.innerWidth + 40); },
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '#gal', start: 'top top',
+            end: function () { return '+=' + (track.scrollWidth - window.innerWidth); },
+            pin: true, scrub: 0.8, invalidateOnRefresh: true, anticipatePin: 1
+          }
+        });
+      });
+
+      // 7. Đường nối các bước: vẽ dần theo cuộn
+      gsap.fromTo('#tl-fill', { scaleY: 0 }, {
+        scaleY: 1, ease: 'none',
+        scrollTrigger: { trigger: '#timeline', start: 'top 70%', end: 'bottom 60%', scrub: true }
+      });
+
+      // Khi thay đổi kích thước, tính lại vị trí các mốc cuộn
+      window.addEventListener('load', function () { ScrollTrigger.refresh(); });
     })();
   </script>
 </body>
