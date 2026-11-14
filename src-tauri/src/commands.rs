@@ -1082,7 +1082,7 @@ pub fn create_workdir(core: State<'_, Core>, token: String, name: String, parent
     let name = crate::export::safe_name(&name);
     let parent = match parent.filter(|p| !p.trim().is_empty()) {
         Some(p) => std::path::PathBuf::from(p),
-        None => std::env::var_os("HOME").map(std::path::PathBuf::from).unwrap_or_default().join("Documents").join("AI Office"),
+        None => crate::platform::home_dir().join("Documents").join("AI Office"),
     };
     let dir = crate::export::unique_path(&parent, &name);
     std::fs::create_dir_all(&dir).map_err(|x| format!("Không tạo được thư mục: {x}"))?;

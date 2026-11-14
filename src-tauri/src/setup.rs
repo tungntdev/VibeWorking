@@ -31,7 +31,7 @@ pub fn install_spec(id: &str) -> Option<InstallSpec> {
 }
 
 fn home() -> PathBuf {
-    std::env::var_os("HOME").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("/tmp"))
+    crate::platform::home_dir()
 }
 
 fn is_local(p: &Provider) -> bool {
@@ -41,7 +41,7 @@ fn is_local(p: &Provider) -> bool {
 async fn version_of(exe: &std::path::Path, path_env: &str) -> String {
     let out = tokio::time::timeout(
         Duration::from_secs(10),
-        tokio::process::Command::new(exe)
+        crate::platform::command(exe)
             .arg("--version")
             .env("PATH", path_env)
             .stdin(Stdio::null())
@@ -186,7 +186,7 @@ async fn run_streaming(core: &Core, id: &str, program: &str, args: &[String], pa
 
 async fn run_streaming_with(core: &Core, id: &str, program: &str, args: &[String], path_env: &str, cancel: &watch::Receiver<bool>, idle_limit: Duration) -> Result<String> {
     core.emit(json!({"type": "install", "id": id, "line": format!("$ {} {}", program, args.join(" "))}));
-    let mut child = tokio::process::Command::new(program)
+    let mut child = crate::platform::command(std::path::Path::new(program))
         .args(args)
         .env("PATH", path_env)
         .env("NO_COLOR", "1")
@@ -273,9 +273,21 @@ async fn npm_install(core: &Core, id: &str, npm: &str, pkg: &str, prefix: Option
 async fn do_install(core: &Core, id: &str, cancel: &watch::Receiver<bool>) -> Result<String> {
     let path_env = core.path_env();
     if id == "node" {
-        let brew = which("brew", &path_env).ok_or_else(|| anyhow!("Máy chưa có Homebrew. Hãy cài Node.js từ https://nodejs.org rồi bấm Quét lại."))?;
-        run_streaming(core, id, &brew.to_string_lossy(), &["install".into(), "node".into()], &path_env, cancel).await?;
-        return Ok("Đã cài Node.js".into());
+        #[cfg(windows)]
+        {
+            // Windows 10/11: dùng winget (có sẵn) để cài Node.js LTS.
+            let winget = which("winget", &path_env).ok_or_else(|| anyhow!("Máy chưa có winget. Hãy cài Node.js từ https://nodejs.org rồi bấm Quét lại."))?;
+            let args: Vec<String> = ["install", "-e", "--id", "OpenJS.NodeJS.LTS", "--silent", "--accept-source-agreements", "--accept-package-agreements"].iter().map(|s| s.to_string()).collect();
+            run_streaming(core, id, &winget.to_string_lossy(), &args, &path_env, cancel).await?;
+            core.set_path_env(crate::providers::resolve_path_env());
+            return Ok("Đã cài Node.js".into());
+        }
+        #[cfg(not(windows))]
+        {
+            let brew = which("brew", &path_env).ok_or_else(|| anyhow!("Máy chưa có Homebrew. Hãy cài Node.js từ https://nodejs.org rồi bấm Quét lại."))?;
+            run_streaming(core, id, &brew.to_string_lossy(), &["install".into(), "node".into()], &path_env, cancel).await?;
+            return Ok("Đã cài Node.js".into());
+        }
     }
     let spec = install_spec(id).ok_or_else(|| anyhow!("Kết nối này không hỗ trợ cài tự động"))?;
     if let Some(npm) = which("npm", &path_env) {
@@ -290,7 +302,7 @@ async fn do_install(core: &Core, id: &str, cancel: &watch::Receiver<bool>) -> Re
             }
             Err(e) => return Err(e),
         }
-    } else if let Some(native) = spec.native {
+    } else if let Some(native) = spec.native.filter(|_| cfg!(unix)) {
         run_streaming(core, id, "/bin/bash", &["-lc".into(), native.into()], &path_env, cancel).await?;
     } else {
         return Err(anyhow!("Cần Node.js (npm) để cài CLI này. Bấm \"Cài Node.js\" hoặc tải từ https://nodejs.org"));
@@ -371,7 +383,23 @@ pub fn open_login(core: &Core, id: &str) -> Result<()> {
         std::process::Command::new("open").args(["-a", "Terminal"]).arg(&script).spawn()?;
         Ok(())
     }
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(windows)]
+    {
+        // Mở cửa sổ Command Prompt mới chạy lệnh đăng nhập.
+        let _ = &cmd;
+        let script = core.0.data_dir.join(format!("dang-nhap-{id}.cmd"));
+        let line = std::iter::once(format!("\"{}\"", exe.display())).chain(args.iter().map(|a| a.to_string())).collect::<Vec<_>>().join(" ");
+        std::fs::write(
+            &script,
+            format!(
+                "@echo off\r\nchcp 65001 >nul\r\nset \"PATH={}\"\r\ncd /d \"%USERPROFILE%\"\r\necho Dang nhap {} - lam theo huong dan, xong thi dong cua so nay va bam Quet lai trong AI Office.\r\n{}\r\npause\r\n",
+                path_env, p.name, line
+            ),
+        )?;
+        std::process::Command::new("cmd").args(["/c", "start", ""]).arg(&script).spawn()?;
+        Ok(())
+    }
+    #[cfg(all(not(target_os = "macos"), not(windows)))]
     {
         Err(anyhow!("Hãy mở cửa sổ dòng lệnh và chạy: {cmd}"))
     }
@@ -397,7 +425,7 @@ pub async fn list_models(p: &Provider, path_env: &str) -> (Vec<String>, bool) {
             Some(exe) => {
                 let out = tokio::time::timeout(
                     Duration::from_secs(25),
-                    tokio::process::Command::new(exe).arg("--list-models").env("PATH", path_env).stdin(Stdio::null()).kill_on_drop(true).output(),
+                    crate::platform::command(&exe).arg("--list-models").env("PATH", path_env).stdin(Stdio::null()).kill_on_drop(true).output(),
                 )
                 .await;
                 out.ok().and_then(|o| o.ok()).map(|o| {

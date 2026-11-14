@@ -969,7 +969,7 @@ const extOf = (n) => (String(n).split('.').pop() || '').toLowerCase();
 function fileChip(f) {
   return `<div class="fchip file ${f.kind || ''}"><span class="ficon">${FILE_ICON[extOf(f.name)] || '📄'}</span>
     <span title="${esc(f.path)}"><b>${esc(f.name)}</b> <small>${fmtSize(f.size || 0)}${f.kind ? ' · ' + (FILE_KIND[f.kind] || f.kind) : ''}${f.by ? ' · ' + esc(f.by) : ''}</small></span>
-    <button class="btn tiny" data-fopen="${esc(f.path)}">Mở</button><button class="btn tiny ghost" data-freveal="${esc(f.path)}" title="Hiện trong Finder">Hiện</button></div>`;
+    <button class="btn tiny" data-fopen="${esc(f.path)}">Mở</button><button class="btn tiny ghost" data-freveal="${esc(f.path)}" title="Hiện trong thư mục">Hiện</button></div>`;
 }
 
 function bindFileChips(root) {
@@ -1581,7 +1581,7 @@ function bindMachine(root) {
     await run(() => call('cancel_install', { id: x.dataset.cancel }), 'Đã gửi lệnh huỷ cài đặt');
   }));
   $$('[data-login]', root).forEach((x) => x.addEventListener('click', async () => {
-    await run(() => call('open_cli_login', { id: x.dataset.login }), 'Đã mở Terminal — đăng nhập xong hãy bấm "Thử gọi AI"');
+    await run(() => call('open_cli_login', { id: x.dataset.login }), 'Đã mở cửa sổ dòng lệnh — đăng nhập xong hãy bấm "Thử gọi AI"');
   }));
   $$('[data-live]', root).forEach((x) => x.addEventListener('click', async () => {
     x.disabled = true;
@@ -1879,12 +1879,14 @@ async function renderSettings() {
     <div class="box"><p style="margin:0">Phiên bản: <b>${esc(info.version)}</b> ${isDesktop ? '' : '(bản xem thử trên trình duyệt)'}</p>
       <p style="margin:6px 0 0">Thư mục dữ liệu: <code class="inline">${esc(info.data_dir)}</code></p>
       <p class="hint-text" style="margin:6px 0 0">Cơ sở dữ liệu <code class="inline">office.db</code> và thư mục làm việc riêng của từng nhân viên (<code class="inline">workspaces/</code>) nằm ở đây. Sao lưu thư mục này để giữ toàn bộ văn phòng.</p>
+      <div class="toolbar" style="margin:10px 0 0"><button class="btn small" id="upd-check"><i data-icon="download"></i>Kiểm tra cập nhật</button><span class="hint-text" id="upd-status"></span></div>
       <p class="hint-text" style="margin:6px 0 0">Mô hình 3D: Kenney Furniture Kit, Mini Characters & Blocky Characters (giấy phép CC0, kenney.nl).</p></div>`);
   bindStyleCards($('#styles', b), async (k) => {
     await run(() => call('set_office_style', { style: k }), 'Đã đổi phong cách văn phòng');
     st.style = k;
     office.setTheme(k);
   });
+  $('#upd-check', b).addEventListener('click', () => checkForUpdates(true));
   $('#f', b).addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
@@ -1893,5 +1895,32 @@ async function renderSettings() {
   });
 }
 
+// ───────────────────────────── Tự cập nhật ─────────────────────────────
+/** Kiểm tra bản mới trên GitHub Releases. manual=true: báo kết quả ra màn hình; false: chỉ hỏi khi có bản mới. */
+async function checkForUpdates(manual = false) {
+  const status = $('#upd-status');
+  const setStatus = (t) => { if (status) status.textContent = t; };
+  const U = window.__TAURI__?.updater;
+  if (!U) { if (manual) toast('Cập nhật chỉ hoạt động trong ứng dụng cài đặt', 'err'); return; }
+  try {
+    setStatus('Đang kiểm tra…');
+    const up = await U.check();
+    if (!up) { setStatus('Bạn đang dùng bản mới nhất.'); if (manual) toast('Bạn đang dùng bản mới nhất', 'ok'); return; }
+    setStatus(`Có bản mới ${up.version}`);
+    const ok = await confirmBox('Có bản cập nhật mới', `Phiên bản ${up.version} đã sẵn sàng${up.body ? ':\n' + up.body.slice(0, 300) : '.'}\nTải và cài ngay? Ứng dụng sẽ khởi động lại.`, false);
+    if (!ok) return;
+    setStatus('Đang tải bản cập nhật…');
+    await up.downloadAndInstall((ev) => {
+      if (ev.event === 'Progress') setStatus(`Đang tải… ${Math.round((ev.data.chunkLength || 0) / 1024)} KB`);
+    });
+    await window.__TAURI__.process.relaunch();
+  } catch (e) {
+    setStatus('');
+    if (manual) toast('Không kiểm tra được cập nhật: ' + (e?.message || e), 'err');
+    else console.warn('update check', e);
+  }
+}
+
 setInterval(refreshStats, 30000);
+setTimeout(() => checkForUpdates(false), 8000);
 boot();

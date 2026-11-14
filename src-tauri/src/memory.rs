@@ -363,6 +363,7 @@ pub fn import_file(path: &Path) -> Result<(String, String)> {
             let _ = std::fs::remove_file(&tmp);
             r?
         }
+        "doc" | "rtf" | "odt" => return Err(anyhow!("Hãy mở tệp bằng Word và lưu lại dạng .docx rồi nhập lại")),
         _ => return Err(anyhow!("Hãy dùng tệp .docx, .md hoặc .txt làm mẫu")),
     };
     if content.trim().is_empty() {
