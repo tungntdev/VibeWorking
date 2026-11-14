@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Office 3D</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <!-- Cảnh 3D -->
+  <div id="scene"></div>
+  <div id="loading" class="loading"><div class="spinner"></div><p>Đang dựng văn phòng 3D…</p></div>
+
+  <!-- Đăng nhập / khởi tạo -->
+  <div id="auth" class="auth hidden">
+    <form id="auth-form" class="auth-card" autocomplete="off">
+      <div class="brand big"><span class="logo">AI</span><div><b>AI Office 3D</b><small>Văn phòng của các nhân viên AI</small></div></div>
+      <h2 id="auth-title">Đăng nhập</h2>
+      <p id="auth-sub" class="muted"></p>
+      <label id="auth-name-row" class="hidden">Họ tên hiển thị<input name="display_name" placeholder="VD: Nguyễn Văn A" /></label>
+      <label>Tên đăng nhập<input name="username" required placeholder="quanly" autocapitalize="off" spellcheck="false" /></label>
+      <label>Mật khẩu<input name="password" type="password" required placeholder="••••••" /></label>
+      <label id="auth-confirm-row" class="hidden">Nhập lại mật khẩu<input name="confirm" type="password" placeholder="••••••" /></label>
+      <div id="auth-style-row" class="hidden"><div class="hint-text" style="margin-bottom:6px">Phong cách văn phòng (xem trước phía sau, đổi lại được trong Cài đặt)</div><div id="auth-styles"></div></div>
+      <div id="auth-error" class="error"></div>
+      <button class="btn primary wide" type="submit" id="auth-btn">Đăng nhập</button>
+      <div id="forgot-row" class="forgot-row hidden"><button type="button" class="link-btn" id="forgot-btn">Quên mật khẩu?</button></div>
+    </form>
+    <div id="forgot-box" class="auth-card hidden">
+      <div class="brand big"><span class="logo">AI</span><div><b>Quên mật khẩu</b><small>Xác thực bằng chính máy tính này</small></div></div>
+      <p class="muted">Dùng <b id="os-method">Touch ID hoặc mật khẩu đăng nhập máy tính</b> để chứng minh bạn là người dùng máy này, rồi đăng nhập luôn hoặc đặt mật khẩu mới cho tài khoản.</p>
+      <label>Tên đăng nhập trong AI Office<input id="fg-user" autocapitalize="off" spellcheck="false" placeholder="quanly"></label>
+      <button type="button" class="btn primary wide" id="fg-login">🔐 Đăng nhập bằng mật khẩu máy tính / Touch ID</button>
+      <div class="or"><span>hoặc đặt mật khẩu mới</span></div>
+      <label>Mật khẩu mới (≥ 6 ký tự)<input id="fg-new" type="password" placeholder="••••••"></label>
+      <label>Nhập lại mật khẩu mới<input id="fg-again" type="password" placeholder="••••••"></label>
+      <button type="button" class="btn wide" id="fg-reset">Xác thực máy tính & đặt lại mật khẩu</button>
+      <div id="fg-error" class="error"></div>
+      <button type="button" class="link-btn" id="fg-back">← Quay lại đăng nhập</button>
+    </div>
+  </div>
+
+  <!-- Khung ứng dụng -->
+  <div id="app" class="hidden">
+    <header class="topbar">
+      <div class="brand"><span class="logo">AI</span><div><b id="office-name">Văn phòng AI</b><small>Văn phòng 3D · nhân viên AI</small></div></div>
+      <div class="stats" id="stats"></div>
+      <div class="top-actions">
+        <button class="btn coffee" id="btn-coffee" title="Mời tác giả ứng dụng một ly cafe">☕<span>Mời cafe</span></button>
+        <button class="btn primary" id="btn-new-mission" data-min="coordinator"><i data-icon="plus"></i>Giao nhiệm vụ</button>
+        <div class="user" id="user-menu">
+          <button class="user-btn" id="user-btn"><span class="avatar-dot" id="user-initial">Q</span><span><b id="user-name"></b><small id="user-role"></small></span><i data-icon="chevron"></i></button>
+          <div class="menu hidden" id="user-dropdown">
+            <button data-act="password"><i data-icon="key"></i>Đổi mật khẩu</button>
+            <button data-act="logout"><i data-icon="logout"></i>Đăng xuất</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="sidenav" id="sidenav">
+      <button data-view="office" class="active" title="Văn phòng 3D"><i data-icon="building"></i><span>Văn phòng</span></button>
+      <button data-view="missions" title="Nhiệm vụ"><i data-icon="target"></i><span>Nhiệm vụ</span></button>
+      <button data-view="pipelines" title="Quy trình nhiều AI"><i data-icon="bolt"></i><span>Quy trình</span></button>
+      <button data-view="templates" title="Mẫu tài liệu & báo cáo"><i data-icon="list"></i><span>Mẫu tài liệu</span></button>
+      <button data-view="staff" title="Nhân sự AI"><i data-icon="users"></i><span>Nhân sự</span></button>
+      <button data-view="recruit" title="Tuyển dụng AI" data-min="manager"><i data-icon="sparkles"></i><span>Tuyển dụng</span></button>
+      <button data-view="providers" title="Kết nối AI"><i data-icon="plug"></i><span>Kết nối AI</span></button>
+      <button data-view="users" title="Người dùng" data-min="manager"><i data-icon="shield"></i><span>Người dùng</span></button>
+      <button data-view="activity" title="Nhật ký"><i data-icon="list"></i><span>Nhật ký</span></button>
+      <button data-view="settings" title="Cài đặt" data-min="manager"><i data-icon="gear"></i><span>Cài đặt</span></button>
+    </nav>
+
+    <aside class="panel hidden" id="panel">
+      <div class="panel-head"><h2 id="panel-title"></h2><button class="icon-btn" id="panel-close" title="Đóng"><i data-icon="x"></i></button></div>
+      <div class="panel-body" id="panel-body"></div>
+    </aside>
+
+    <div class="agent-card hidden" id="agent-card"></div>
+
+    <div class="questions" id="questions"></div>
+    <div class="done-cards" id="done-cards"></div>
+    <div class="ticker" id="ticker"></div>
+    <div class="hint" id="hint">Kéo chuột để xoay · cuộn để phóng to · bấm vào nhân viên để xem hồ sơ</div>
+  </div>
+
+  <!-- Hộp thoại -->
+  <div class="modal-wrap hidden" id="modal"><div class="modal" id="modal-box"></div></div>
+  <div class="toasts" id="toasts"></div>
+  <div class="zoom-wrap hidden" id="zoom"><div class="zoom-box"><div class="zoom-head"><b>Xem bảng</b><span class="grow"></span><button class="icon-btn" id="zoom-close" title="Đóng (Esc)">✕</button></div><div class="zoom-body md" id="zoom-body"></div></div></div>
+  <div class="drop-overlay hidden" id="drop-overlay"><div><b>Thả tệp hoặc thư mục vào đây</b><span>Thư mục → AI làm việc ngay trong thư mục đó · Tệp → đính kèm cho nhiệm vụ</span></div></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
