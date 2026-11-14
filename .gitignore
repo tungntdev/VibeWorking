@@ -2,3 +2,6 @@
 /src-tauri/gen/
 node_modules/
 .DS_Store
+
+# Gói phát hành (file lớn, đưa lên GitHub Releases thay vì git)
+/dist/

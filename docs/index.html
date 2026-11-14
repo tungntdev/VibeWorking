@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Office 3D — Văn phòng AI miễn phí</title>
+  <meta name="description" content="AI Office 3D: văn phòng 3D nơi các nhân viên AI làm việc cùng bạn. Miễn phí, chạy trên macOS và Windows, kết nối Claude, Codex, Gemini, Ollama và nhiều AI khác." />
+  <meta property="og:title" content="AI Office 3D — Văn phòng AI miễn phí" />
+  <meta property="og:description" content="Giao việc cho nhân viên AI trong một văn phòng 3D. Miễn phí cho macOS và Windows." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#0b0d1f" />
+  <link rel="icon" href="icon.png" />
+  <style>
+    :root {
+      --bg: #0b0d1f;
+      --bg-2: #141834;
+      --card: rgba(255, 255, 255, 0.05);
+      --line: rgba(255, 255, 255, 0.1);
+      --text: #eef0ff;
+      --muted: #a4abd1;
+      --accent: #7c83ff;
+      --accent-2: #b07cff;
+      --ok: #34d399;
+      --radius: 18px;
+    }
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) { --bg: #f5f6ff; --bg-2: #e9ebff; --card: rgba(255, 255, 255, 0.7); --line: rgba(20, 25, 60, 0.12); --text: #141834; --muted: #545b80; }
+    }
+    :root[data-theme="light"] { --bg: #f5f6ff; --bg-2: #e9ebff; --card: rgba(255, 255, 255, 0.7); --line: rgba(20, 25, 60, 0.12); --text: #141834; --muted: #545b80; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; }
+    a { color: var(--accent); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+    header.nav { position: sticky; top: 0; z-index: 5; backdrop-filter: blur(12px); background: color-mix(in srgb, var(--bg) 80%, transparent); border-bottom: 1px solid var(--line); }
+    .nav .wrap { display: flex; align-items: center; gap: 14px; height: 60px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; color: var(--text); }
+    .brand img { width: 30px; height: 30px; border-radius: 8px; }
+    .nav nav { margin-left: auto; display: flex; gap: 18px; }
+    .nav nav a { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .nav nav a:hover { color: var(--text); }
+    .hero { padding: 72px 0 40px; text-align: center; background: radial-gradient(900px 420px at 50% -10%, rgba(124, 131, 255, 0.35), transparent 70%); }
+    .badge { display: inline-block; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; background: var(--card); }
+    h1 { font-size: clamp(34px, 6vw, 60px); line-height: 1.08; margin: 18px 0 14px; letter-spacing: -0.02em; }
+    h1 span { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { color: var(--muted); font-size: clamp(16px, 2vw, 19px); max-width: 680px; margin: 0 auto; }
+    .cta { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 30px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 22px; border-radius: 14px; font-weight: 700; font-size: 16px; text-decoration: none; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 12px 34px rgba(124, 131, 255, 0.4); border: 0; cursor: pointer; }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.ghost { background: var(--card); color: var(--text); box-shadow: none; border: 1px solid var(--line); font-weight: 600; font-size: 14px; padding: 10px 16px; }
+    .btn small { font-weight: 500; opacity: .85; font-size: 13px; }
+    .alt { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .meta { color: var(--muted); font-size: 13px; }
+    .shot { margin: 46px auto 0; max-width: 920px; border-radius: var(--radius); border: 1px solid var(--line); background: linear-gradient(160deg, var(--bg-2), var(--bg)); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); overflow: hidden; aspect-ratio: 16 / 10; display: grid; place-items: center; }
+    .shot-inner { text-align: center; color: var(--muted); padding: 24px; }
+    .shot-inner .room { font-size: 64px; }
+    section { padding: 64px 0; }
+    section h2 { font-size: clamp(24px, 3.5vw, 34px); margin: 0 0 10px; letter-spacing: -0.01em; }
+    section > .wrap > p.sub { color: var(--muted); margin: 0 0 30px; max-width: 680px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .card .ic { font-size: 28px; margin-bottom: 8px; }
+    .card h3 { margin: 0 0 6px; font-size: 17px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+    .steps { counter-reset: s; display: grid; gap: 14px; }
+    .step { display: flex; gap: 16px; align-items: flex-start; }
+    .step b.n { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font-weight: 700; }
+    .step p { margin: 4px 0 0; color: var(--muted); }
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .plat { position: relative; }
+    .plat.current { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124, 131, 255, 0.25); }
+    .plat .tag { position: absolute; top: 14px; right: 14px; font-size: 12px; color: var(--ok); }
+    .plat h3 { margin: 0 0 4px; }
+    .plat ul { margin: 10px 0 16px; padding-left: 18px; color: var(--muted); font-size: 14px; }
+    .plat .btn { width: 100%; }
+    details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    details summary { cursor: pointer; font-weight: 600; }
+    details p { color: var(--muted); margin: 8px 0 0; }
+    code { background: var(--card); border: 1px solid var(--line); padding: 2px 6px; border-radius: 6px; font-size: 13px; word-break: break-all; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; overflow-x: auto; font-size: 13px; }
+    footer { padding: 40px 0 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 24px; justify-content: space-between; }
+    @media (max-width: 640px) {
+      .nav nav a:not(.keep) { display: none; }
+      .hero { padding-top: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a class="brand" href="#top"><img src="icon.png" alt="" /> AI Office 3D</a>
+      <nav>
+        <a href="#tinh-nang">Tính năng</a>
+        <a href="#cach-dung">Cách dùng</a>
+        <a href="#tai-ve">Tải về</a>
+        <a href="#hoi-dap">Hỏi đáp</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="hero">
+      <div class="wrap">
+        <span class="badge">Miễn phí · Mã nguồn mở · macOS & Windows</span>
+        <h1>Văn phòng 3D, nơi <span>nhân viên AI</span> làm việc cho bạn</h1>
+        <p class="lead">Giao công việc bằng lời, theo dõi từng nhân viên ngồi ở bàn làm việc của mình, nhận báo cáo khi xong. Kết nối Claude, Codex, Gemini, Ollama hoặc bất kỳ AI nào bạn đang dùng.</p>
+        <div class="cta">
+          <a class="btn" id="dl-primary" href="https://github.com/tungntdev/VibeWorking/releases/latest"><span id="dl-label">Tải về</span> <small id="dl-sub"></small></a>
+          <div class="alt">
+            <a class="btn ghost" href="https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-macos-universal.dmg">🍎 macOS (Apple & Intel)</a>
+            <a class="btn ghost" href="https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-windows-x64-setup.exe">🪟 Windows 10/11</a>
+          </div>
+          <span class="meta">Không cần tài khoản · Không thu phí · Tự động cập nhật bản mới</span>
+        </div>
+        <div class="shot" role="img" aria-label="Minh hoạ văn phòng 3D">
+          <div class="shot-inner"><div class="room">🏢</div><p>Văn phòng 3D với các nhân viên AI tại bàn làm việc, bảng tên và trạng thái trực tiếp</p></div>
+        </div>
+      </div>
+    </div>
+
+    <section id="tinh-nang">
+      <div class="wrap">
+        <h2>Mọi thứ trong một văn phòng</h2>
+        <p class="sub">Không chỉ là giao diện đẹp: mỗi nhân viên có vai trò, mức độ kỹ năng và AI riêng, làm việc trong thư mục bạn chọn.</p>
+        <div class="grid">
+          <div class="card"><div class="ic">🧑‍💼</div><h3>Nhân viên AI theo vai trò</h3><p>Ứng viên được AI đề xuất từ mô tả công việc. Thêm, sửa, xoá nhân viên và chọn AI, mô hình, mức suy luận cho từng người.</p></div>
+          <div class="card"><div class="ic">🔀</div><h3>Nhiều AI trong một việc</h3><p>Gemini tìm thông tin, Claude viết tổng hợp, GPT kiểm tra lại. Mỗi bước chạy trên AI phù hợp nhất.</p></div>
+          <div class="card"><div class="ic">📂</div><h3>Làm việc với tệp của bạn</h3><p>Kéo thả tệp hoặc cả thư mục vào công việc. Nhân viên đọc, sửa và tạo tệp ngay trong thư mục đó.</p></div>
+          <div class="card"><div class="ic">📄</div><h3>Xuất Word, PDF, Excel</h3><p>Báo cáo được xuất theo đúng mẫu bạn đã lưu: Word, PDF, Excel, CSV hoặc HTML.</p></div>
+          <div class="card"><div class="ic">🧠</div><h3>Nhớ những gì bạn đã dặn</h3><p>Khi bạn yêu cầu chỉnh sửa lặp lại, nhân viên ghi nhớ và áp dụng cho các việc sau.</p></div>
+          <div class="card"><div class="ic">💬</div><h3>Hỏi lại, nhắn tiếp</h3><p>Nhân viên đứng dậy hỏi bạn khi thiếu thông tin. Việc đã xong vẫn có thể nhắn tiếp để chỉnh sửa.</p></div>
+          <div class="card"><div class="ic">🔒</div><h3>Dữ liệu ở trên máy bạn</h3><p>Cơ sở dữ liệu và thư mục làm việc lưu trên máy bạn. Đăng nhập bằng mật khẩu, Touch ID trên Mac.</p></div>
+          <div class="card"><div class="ic">⬆️</div><h3>Tự cập nhật</h3><p>Ứng dụng kiểm tra bản mới khi khởi động và cho bạn cài đặt chỉ với một cú bấm.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cach-dung">
+      <div class="wrap">
+        <h2>Bắt đầu trong 3 bước</h2>
+        <p class="sub">Lần đầu mở ứng dụng, một trợ lý thiết lập sẽ hướng dẫn bạn.</p>
+        <div class="steps">
+          <div class="step"><b class="n">1</b><div><h3 style="margin:0">Kết nối AI</h3><p>Ứng dụng quét máy và cài các công cụ AI còn thiếu (Claude Code, Codex, Gemini CLI…). Hoặc dán khoá API của bạn.</p></div></div>
+          <div class="step"><b class="n">2</b><div><h3 style="margin:0">Mô tả công việc</h3><p>Viết văn phòng của bạn làm gì. AI đề xuất các nhân viên phù hợp, bạn chỉnh lại nếu muốn.</p></div></div>
+          <div class="step"><b class="n">3</b><div><h3 style="margin:0">Giao nhiệm vụ</h3><p>Nêu yêu cầu, đính kèm tệp nếu có. Xem nhân viên làm việc và nhận báo cáo khi xong.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tai-ve">
+      <div class="wrap">
+        <h2>Tải về miễn phí</h2>
+        <p class="sub">Chọn đúng hệ điều hành của bạn. Trang này tự nhận diện máy bạn đang dùng.</p>
+        <div class="platforms">
+          <div class="card plat" id="plat-mac">
+            <span class="tag" hidden>● Máy của bạn</span>
+            <h3>🍎 macOS</h3>
+            <p class="meta" style="margin:0">Mac chip Apple (M1–M4) và Mac Intel · macOS 11 trở lên</p>
+            <ul>
+              <li>Tệp: <code>AI-Office-3D-macos-universal.dmg</code></li>
+              <li>Mở tệp, kéo vào Applications</li>
+            </ul>
+            <a class="btn" href="https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-macos-universal.dmg">Tải cho macOS</a>
+            <details style="margin-top:14px">
+              <summary>macOS chặn khi mở lần đầu?</summary>
+              <p>Ứng dụng chưa qua Apple công chứng nên macOS có thể báo "không mở được". Vào <b>Cài đặt hệ thống → Quyền riêng tư & Bảo mật</b>, kéo xuống và bấm <b>Vẫn mở</b>. Hoặc chạy lệnh sau trong Terminal:</p>
+              <pre>xattr -dr com.apple.quarantine "/Applications/AI Office 3D.app"</pre>
+            </details>
+          </div>
+          <div class="card plat" id="plat-win">
+            <span class="tag" hidden>● Máy của bạn</span>
+            <h3>🪟 Windows</h3>
+            <p class="meta" style="margin:0">Windows 10 (bản cập nhật mới) và Windows 11, 64-bit</p>
+            <ul>
+              <li>Tệp: <code>AI-Office-3D-windows-x64-setup.exe</code></li>
+              <li>Chạy tệp và làm theo hướng dẫn</li>
+            </ul>
+            <a class="btn" href="https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-windows-x64-setup.exe">Tải cho Windows</a>
+            <details style="margin-top:14px">
+              <summary>SmartScreen báo "Windows đã bảo vệ máy tính"?</summary>
+              <p>Bấm <b>Thông tin thêm</b> rồi <b>Vẫn chạy</b>. Đây là cảnh báo vì ứng dụng chưa có chứng chỉ ký số trả phí.</p>
+            </details>
+          </div>
+          <div class="card plat">
+            <h3>📦 Bản khác & mã nguồn</h3>
+            <p class="meta" style="margin:0">Xem mọi phiên bản, ghi chú cập nhật và mã nguồn trên GitHub.</p>
+            <ul>
+              <li>Mọi bản phát hành và tệp SHA-256</li>
+              <li>Hướng dẫn tự build từ mã nguồn</li>
+            </ul>
+            <a class="btn ghost" href="https://github.com/tungntdev/VibeWorking/releases">Xem tất cả phiên bản</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="hoi-dap">
+      <div class="wrap">
+        <h2>Hỏi đáp</h2>
+        <p class="sub">Một vài điều thường được hỏi.</p>
+        <details><summary>Ứng dụng có thật sự miễn phí không?</summary><p>Có. Ứng dụng không thu phí, không quảng cáo và không cần tài khoản. Bạn chỉ trả tiền cho các dịch vụ AI bạn dùng (nếu có), theo giá của nhà cung cấp.</p></details>
+        <details><summary>Tôi cần có AI nào?</summary><p>Ít nhất một AI: một công cụ dòng lệnh đã đăng nhập (Claude Code, Codex, Gemini CLI…) hoặc khoá API của nhà cung cấp, hoặc một mô hình chạy trên máy như Ollama.</p></details>
+        <details><summary>Dữ liệu của tôi đi đâu?</summary><p>Cơ sở dữ liệu và thư mục làm việc nằm trên máy bạn. Nội dung công việc được gửi tới AI bạn đã kết nối, theo cách bạn cấu hình.</p></details>
+        <details><summary>Ứng dụng tự cập nhật thế nào?</summary><p>Khi mở, ứng dụng kiểm tra bản mới trên GitHub. Nếu có, bạn xem ghi chú và bấm cài đặt. Bản cập nhật được ký số và kiểm tra trước khi cài. Có thể bấm <b>Kiểm tra cập nhật</b> trong Cài đặt bất cứ lúc nào.</p></details>
+        <details><summary>Chạy trên Linux được không?</summary><p>Hiện chưa có bản Linux chính thức.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© AI Office 3D · Mô hình 3D: Kenney (CC0)</span>
+      <span><a href="https://github.com/tungntdev/VibeWorking">GitHub</a> · <a href="https://github.com/tungntdev/VibeWorking/releases">Phiên bản</a></span>
+    </div>
+  </footer>
+
+  <script>
+    // Nhận diện hệ điều hành để đưa đúng nút tải lên đầu.
+    (function () {
+      var ua = navigator.userAgent || '', plat = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+      var isMac = /Mac|iPhone|iPad/i.test(plat) || /Macintosh/.test(ua);
+      var isWin = /Win/i.test(plat) || /Windows/.test(ua);
+      var mac = 'https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-macos-universal.dmg';
+      var win = 'https://github.com/tungntdev/VibeWorking/releases/latest/download/AI-Office-3D-windows-x64-setup.exe';
+      var primary = document.getElementById('dl-primary'), label = document.getElementById('dl-label'), sub = document.getElementById('dl-sub');
+      if (isMac) {
+        primary.href = mac; label.textContent = 'Tải cho macOS'; sub.textContent = '(.dmg)';
+        document.querySelector('#plat-mac .tag').hidden = false; document.getElementById('plat-mac').classList.add('current');
+      } else if (isWin) {
+        primary.href = win; label.textContent = 'Tải cho Windows'; sub.textContent = '(.exe)';
+        document.querySelector('#plat-win .tag').hidden = false; document.getElementById('plat-win').classList.add('current');
+      } else {
+        label.textContent = 'Xem các phiên bản'; sub.textContent = '(macOS, Windows)';
+      }
+    })();
+  </script>
+</body>
+</html>

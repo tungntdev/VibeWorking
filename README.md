@@ -17,17 +17,61 @@
 | Văn phòng 3D | Xoay/phóng to, bấm chọn nhân viên; nhân viên đi nhận việc, gõ việc (màn hình sáng, vòng sáng dưới chân), mừng khi xong, lắc đầu khi lỗi, thỉnh thoảng đi lấy cà phê. Bảng tin trên tường hiển thị số liệu. Văn phòng tự mở thêm dãy bàn khi tuyển thêm người. |
 | Nhật ký | Mọi thao tác (giao việc, phân công, hoàn thành, lỗi, nhân sự) được ghi lại. |
 
-## Chạy ứng dụng
+## Cài đặt
 
-Bản đã build nằm ở `src-tauri/target/release/bundle/macos/AI Office 3D.app` — kéo vào thư mục Applications và mở như ứng dụng bình thường. Dữ liệu lưu tại `~/Library/Application Support/vn.vibeworking.aioffice/` (`office.db` và thư mục `workspaces/` của từng nhân viên). Sao lưu thư mục này là giữ được toàn bộ văn phòng.
+### macOS
+
+File cài đặt: `dist/AI Office 3D_1.0.0_universal.dmg` (chạy trên cả Mac chip Apple và Mac Intel, macOS 11 trở lên).
+
+1. Mở tệp `.dmg`, kéo **AI Office 3D** vào **Applications**.
+2. Lần mở đầu tiên trên máy khác, macOS có thể chặn vì ứng dụng chưa được Apple công chứng (notarize). Vào **Cài đặt hệ thống → Quyền riêng tư & Bảo mật**, kéo xuống và bấm **Vẫn mở**. Nếu macOS báo ứng dụng "bị hỏng", chạy lệnh sau trong Terminal rồi mở lại:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/AI Office 3D.app"
+```
+
+Dữ liệu lưu tại `~/Library/Application Support/vn.vibeworking.aioffice/` (`office.db` và thư mục `workspaces/` của từng nhân viên). Sao lưu thư mục này là giữ được toàn bộ văn phòng.
+
+### Windows
+
+Build trên một máy Windows 10/11 (xem "Build trên Windows" bên dưới) → được file `AI Office 3D_1.0.0_x64-setup.exe`. Chạy file này để cài; trình cài đặt tự tải WebView2 nếu máy chưa có. Dữ liệu lưu tại `%APPDATA%\vn.vibeworking.aioffice\`.
+
+Khác biệt trên Windows: chức năng "Quên mật khẩu → xác thực bằng máy tính" (Touch ID) chỉ có trên macOS; nhập mẫu từ `.doc/.rtf/.odt` cần lưu lại thành `.docx` trước; nút "Cài Node.js" dùng `winget`; đăng nhập CLI mở cửa sổ Command Prompt.
 
 ### Build lại từ mã nguồn
 
 Cần Rust (`rustup`) và Node.js (chỉ để chạy Tauri CLI).
 
+macOS — bản universal (chip Apple + Intel), ra `.app` và `.dmg`:
+
 ```bash
-npx @tauri-apps/cli@2 build --bundles app
+rustup target add x86_64-apple-darwin
 ```
+
+```bash
+npx @tauri-apps/cli@2 build --target universal-apple-darwin --bundles app,dmg
+```
+
+Kết quả: `src-tauri/target/universal-apple-darwin/release/bundle/dmg/`. Ứng dụng được ký ad-hoc (`signingIdentity: "-"` trong `tauri.conf.json`); muốn phát hành không bị Gatekeeper chặn cần tài khoản Apple Developer để ký Developer ID và công chứng.
+
+### Build trên Windows
+
+Trên máy Windows 10/11 (64-bit), cài một lần:
+
+1. **Visual Studio Build Tools** (chọn "Desktop development with C++"): <https://visualstudio.microsoft.com/visual-cpp-build-tools/>
+2. **Rust**: tải `rustup-init.exe` từ <https://rustup.rs> và cài mặc định (toolchain `stable-x86_64-pc-windows-msvc`).
+3. **Node.js LTS**: <https://nodejs.org> (hoặc `winget install OpenJS.NodeJS.LTS`).
+4. WebView2 đã có sẵn trên Windows 10 (bản cập nhật mới)/11.
+
+Chép cả thư mục dự án sang máy Windows (không cần thư mục `src-tauri/target`), mở PowerShell trong thư mục dự án và chạy:
+
+```powershell
+npx @tauri-apps/cli@2 build --bundles nsis
+```
+
+File cài đặt nằm ở `src-tauri\target\release\bundle\nsis\AI Office 3D_1.0.0_x64-setup.exe`. Muốn thêm gói `.msi`, dùng `--bundles nsis,msi` (cần bật tính năng VBSCRIPT của Windows cho WiX).
+
+Kiểm thử backend trên Windows: các bài test dùng `/bin/sh` chỉ chạy được trên macOS/Linux, nên trên Windows chỉ cần build.
 
 Chạy chế độ phát triển (tự nạp lại giao diện):
 

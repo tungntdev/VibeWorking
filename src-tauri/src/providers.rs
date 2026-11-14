@@ -135,21 +135,7 @@ pub fn resolve_path_env() -> String {
     if let Ok(cur) = std::env::var("PATH") {
         parts.extend(std::env::split_paths(&cur).map(|p| p.to_string_lossy().to_string()));
     }
-    if let Some(home) = std::env::var_os("HOME").map(PathBuf::from) {
-        for d in [".local/bin", ".cargo/bin", ".npm-global/bin", ".bun/bin", ".volta/bin", "bin"] {
-            parts.push(home.join(d).to_string_lossy().to_string());
-        }
-        // Node cài qua nvm: thêm thư mục bin của các phiên bản đã cài.
-        if let Ok(rd) = std::fs::read_dir(home.join(".nvm/versions/node")) {
-            let mut vs: Vec<_> = rd.flatten().map(|e| e.path().join("bin")).collect();
-            vs.sort();
-            vs.reverse();
-            parts.extend(vs.into_iter().map(|p| p.to_string_lossy().to_string()));
-        }
-    }
-    for d in ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin"] {
-        parts.push(d.into());
-    }
+    parts.extend(crate::platform::extra_bin_dirs().into_iter().map(|p| p.to_string_lossy().to_string()));
     let mut seen = std::collections::HashSet::new();
     parts.retain(|p| !p.is_empty() && seen.insert(p.clone()));
     std::env::join_paths(parts.iter())
@@ -196,16 +182,8 @@ pub fn which(cmd: &str, path_env: &str) -> Option<PathBuf> {
         return direct.is_file().then(|| direct.to_path_buf());
     }
     for dir in std::env::split_paths(path_env) {
-        let cand = dir.join(cmd);
-        if cand.is_file() {
-            return Some(cand);
-        }
-        #[cfg(windows)]
-        for ext in ["exe", "cmd", "bat"] {
-            let c = dir.join(format!("{cmd}.{ext}"));
-            if c.is_file() {
-                return Some(c);
-            }
+        if let Some(c) = crate::platform::exe_candidates(&dir, cmd).into_iter().find(|c| c.is_file()) {
+            return Some(c);
         }
     }
     None
@@ -542,7 +520,7 @@ async fn invoke_cli(p: &Provider, call: &Call<'_>) -> Result<String> {
         &call.workdir.to_string_lossy(),
         call.extra_args,
     )?;
-    let mut cmd = tokio::process::Command::new(&exe);
+    let mut cmd = crate::platform::command(&exe);
     cmd.args(&args)
         .current_dir(call.workdir)
         .env("PATH", call.path_env)
@@ -842,7 +820,7 @@ pub async fn test_provider(p: &Provider, path_env: &str, workdir: &Path) -> Resu
                 .ok_or_else(|| anyhow!("Không tìm thấy lệnh \"{}\" trong PATH", p.command))?;
             let out = tokio::time::timeout(
                 Duration::from_secs(20),
-                tokio::process::Command::new(&exe)
+                crate::platform::command(&exe)
                     .arg("--version")
                     .env("PATH", path_env)
                     .stdin(Stdio::null())
